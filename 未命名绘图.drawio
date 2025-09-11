@@ -17,7 +17,7 @@
           <mxGeometry x="30" y="530" width="760" height="30" as="geometry" />
         </mxCell>
         <mxCell id="IS9nQfpcoy3rgKgGSZ5m-6" value="working area , v-scroll bar.&amp;nbsp; no rectangle.&amp;nbsp;&lt;br&gt;[Agent Name] :&amp;nbsp; XXX&lt;br&gt;You: XXX&amp;nbsp;&lt;br&gt;&lt;br&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=none;" vertex="1" parent="1">
-          <mxGeometry x="110" y="90" width="550" height="370" as="geometry" />
+          <mxGeometry x="110" y="90" width="520" height="370" as="geometry" />
         </mxCell>
         <mxCell id="IS9nQfpcoy3rgKgGSZ5m-7" value="TeamDev,&amp;nbsp; Current Project: [XXX]&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="30" y="50" width="760" height="30" as="geometry" />
@@ -29,7 +29,7 @@
           <mxGeometry x="640" y="90" width="150" height="370" as="geometry" />
         </mxCell>
         <mxCell id="IS9nQfpcoy3rgKgGSZ5m-10" value="Stop" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="680" y="420" width="90" height="30" as="geometry" />
+          <mxGeometry x="660" y="420" width="120" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

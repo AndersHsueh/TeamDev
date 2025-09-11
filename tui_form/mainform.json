@@ -1,0 +1,82 @@
+{
+  "name": "mainform",
+  "type": "form",
+  "title": "TeamDev, Current Project: [Demo]",
+  "layout": "vertical",
+  "children": [
+      {
+          "type": "panel",
+          "id": "header",
+          "height": 1,
+          "content": "TeamDev, Current Project: [Demo]"
+      },
+      {
+          "type": "split",
+          "direction": "horizontal",
+          "children": [
+              {
+                  "type": "panel",
+                  "id": "agent_list",
+                  "width": 20,
+                  "component": "AgentList",
+                  "data": {
+                      "agents": [
+                          {"id": "jim", "name": "Jim", "role": "Product", "status": "active", "color": "green"},
+                          {"id": "jacky", "name": "Jacky", "role": "Architect", "status": "working", "color": "yellow"},
+                          {"id": "pei", "name": "Peipei", "role": "Tester", "status": "idle", "color": "gray"}
+                      ]
+                  }
+              },
+              {
+                  "type": "panel",
+                  "id": "work_area",
+                  "component": "WorkArea",
+                  "scroll": "vertical",
+                  "data": {
+                      "lines": [
+                          "[Jim] Capturing requirements...",
+                          "[Jacky] Drafting architecture..."
+                      ]
+                  }
+              },
+              {
+                  "type": "panel",
+                  "id": "task_list",
+                  "width": 25,
+                  "component": "TaskList",
+                  "data": {
+                      "items": [
+                          {"step": 1, "agent": "Jacky", "status": "done", "title": "Setup initial architecture", "id": "t1"},
+                          {"step": 2, "agent": "Jim", "status": "working", "title": "Draft PRD", "id": "t2"},
+                          {"step": 3, "agent": "Peipei", "status": "pending", "title": "Prepare test cases", "id": "t3"}
+                      ]
+                  }
+              }
+          ]
+      },
+      {
+          "type": "panel",
+          "id": "input_box",
+          "component": "InputBox",
+          "height": 3,
+          "data": {
+              "prompt": "> ",
+              "placeholder": "Type your message or /command",
+              "history_limit": 200
+          },
+          "actions": {
+              "on_submit": {"type": "command", "name": "send_message", "args_from": "value"},
+              "on_command": {"type": "command", "name": "command_exec", "args_from": "value"}
+          }
+      },
+      {
+          "type": "panel",
+          "id": "status_bar",
+          "height": 1,
+          "component": "StatusBar",
+          "data": {
+              "text": "Main Model: grok-code-fast-1 | Project: Demo"
+          }
+      }
+  ]
+}

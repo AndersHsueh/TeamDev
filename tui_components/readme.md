@@ -49,7 +49,13 @@ tui_components/
 ```bash
 # 克隆或下载组件库
 git clone <repository-url>
-cd tui_components
+cd TeamDev
+
+# 安装依赖
+pip install -r requirements.txt
+
+# 或者只安装核心依赖
+pip install wcwidth
 ```
 
 ### 基本使用
@@ -226,6 +232,24 @@ result = input_box.handle_key("Enter")  # 提交输入，返回完整字符串
 - 上下键浏览历史
 - 支持中文字符输入
 - 回车键提交输入
+
+## 依赖说明
+
+### 核心依赖
+- `wcwidth>=0.2.5` - 用于计算中文字符宽度，支持 input_box.py 组件
+
+### 可选依赖
+- `rich>=13.0.0` - 富文本渲染，可用于更好的颜色和样式支持
+- `colorama>=0.4.4` - 跨平台颜色支持
+- `blessed>=1.20.0` - 终端控制库，提供更好的终端交互
+- `click>=8.0.0` - 命令行界面工具
+
+### 开发依赖
+- `pytest>=7.0.0` - 测试框架
+- `pytest-cov>=4.0.0` - 测试覆盖率
+- `black>=22.0.0` - 代码格式化
+- `flake8>=5.0.0` - 代码检查
+- `mypy>=1.0.0` - 类型检查
 
 ## 布局管理
 
