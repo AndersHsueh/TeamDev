@@ -7,6 +7,7 @@ from typing import Dict, Any, Optional
 from enum import Enum
 from ..core.base_component import BaseComponent
 from ..core.theme import get_color, get_style
+from rich.console import RenderableType
 
 
 class AgentStatus(Enum):
@@ -21,8 +22,8 @@ class AgentStatus(Enum):
 class AgentStatusComponent(BaseComponent):
     """Agent 状态显示组件"""
     
-    def __init__(self, name: str = "agent_status"):
-        super().__init__(name)
+    def __init__(self, *, id: str | None = None, classes: str | None = None, name: str | None = None):
+        super().__init__(id=id, classes=classes, name=name)
         self.agent_name = "Agent"
         self.agent_avatar = "🤖"
         self.status = AgentStatus.IDLE
@@ -67,6 +68,11 @@ class AgentStatusComponent(BaseComponent):
         self.show_status_light = show_status_light
         self.show_name = show_name
         self.show_message = show_message
+    
+    def update(self, data: Any = None) -> None:
+        """更新组件状态"""
+        # AgentStatus组件暂时不需要特殊的更新逻辑
+        pass
     
     def render(self) -> str:
         """渲染组件内容"""

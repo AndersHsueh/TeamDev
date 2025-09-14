@@ -38,8 +38,8 @@ class Selection:
 class EditorComponent(BaseComponent):
     """文本/代码编辑器组件"""
     
-    def __init__(self, name: str = "editor"):
-        super().__init__(name)
+    def __init__(self, *, id: str | None = None, classes: str | None = None, name: str | None = None):
+        super().__init__(id=id, classes=classes, name=name)
         self.lines: List[str] = [""]  # 文本行
         self.cursor = Position(0, 0)  # 光标位置
         self.selection = Selection(Position(0, 0), Position(0, 0))  # 选择区域

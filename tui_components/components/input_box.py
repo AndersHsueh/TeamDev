@@ -1,62 +1,70 @@
 import textwrap
-from core.base_component import BaseComponent
-from wcwidth import wcswidth
+from ..core.base_component import BaseComponent
+from textual.message import Message
+from textual import events
 
+class InputBoxComponent(BaseComponent):
+    """A simple input box component for Textual."""
 
-class InputBox(BaseComponent):
-    def __init__(self, prompt: str = "> ", width: int = 80):
-        super().__init__(name="InputBox")
-        self.prompt = prompt
-        self.width = width
-        self.buffer = ""          # 当前输入缓冲
-        self.history = []         # 历史输入
-        self.history_index = -1   # 当前历史索引
+    class Submitted(Message):
+        """Posted when the user presses Enter."""
+        def __init__(self, value: str) -> None:
+            self.value = value
+            super().__init__()
+
+    def __init__(
+        self,
+        *, 
+        id: str | None = None,
+        classes: str | None = None,
+        name: str | None = None,
+        placeholder: str = "> ",
+    ):
+        super().__init__(id=id, classes=classes, name=name)
+        self.prompt = placeholder
+        self.buffer = ""
+        self.history = []
+        self.history_index = -1
 
     def render(self) -> str:
-        """
-        渲染输入框，带 prompt，支持自动换行。
-        """
+        """Render the input box."""
         full_text = self.prompt + self.buffer
-        wrapped_lines = textwrap.wrap(full_text, self.width,
+        # Use self.size.width which is provided by Textual's Widget
+        wrapped_lines = textwrap.wrap(full_text, self.size.width or 80,
                                       replace_whitespace=False,
                                       drop_whitespace=False)
         return "\n".join(wrapped_lines)
 
     def update(self, data=None) -> None:
-        """这里不需要定时更新，由 handle_key 驱动。"""
+        """No periodic updates needed for this component."""
         pass
 
-    def handle_key(self, key: str) -> str | None:
-        """
-        处理键盘输入：
-        - 普通字符：加入 buffer
-        - Backspace：删除一个完整字符
-        - Enter：提交输入，存入历史，并清空 buffer
-        - 上/下键：浏览历史
-        返回值：如果按下 Enter，返回提交的字符串，否则 None
-        """
-        if key == "Backspace":
+    async def on_key(self, event: events.Key) -> None:
+        """Handle key events."""
+        event.stop()
+        key = event.key
+        
+        if key == "backspace":
             if self.buffer:
                 self.buffer = self.buffer[:-1]
-        elif key == "Enter":
+        elif key == "enter":
             if self.buffer.strip():
                 self.history.append(self.buffer)
                 self.history_index = len(self.history)
-                submitted = self.buffer
+                self.post_message(self.Submitted(self.buffer))
                 self.buffer = ""
-                return submitted
-        elif key == "Up":
+        elif key == "up":
             if self.history:
                 self.history_index = max(0, self.history_index - 1)
                 self.buffer = self.history[self.history_index]
-        elif key == "Down":
+        elif key == "down":
             if self.history:
                 self.history_index = min(len(self.history), self.history_index + 1)
                 if self.history_index == len(self.history):
                     self.buffer = ""
                 else:
                     self.buffer = self.history[self.history_index]
-        else:
-            # 普通字符输入，包含中文
-            self.buffer += key
-        return None
+        elif event.is_printable:
+            self.buffer += event.character
+
+        self.refresh()

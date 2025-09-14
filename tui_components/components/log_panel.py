@@ -48,11 +48,11 @@ class LogEntry:
 class LogPanelComponent(BaseComponent):
     """日志输出面板组件"""
     
-    def __init__(self, name: str = "log_panel"):
-        super().__init__(name)
+    def __init__(self, *, id: str | None = None, classes: str | None = None, name: str | None = None):
+        super().__init__(id=id, classes=classes, name=name)
         self.logs: List[LogEntry] = []
         self.max_logs = 1000  # 最大日志条数
-        self.scroll_offset = 0
+        self.log_scroll_offset = 0
         self.auto_scroll = True
         self.show_timestamp = True
         self.show_level = True
@@ -72,6 +72,11 @@ class LogPanelComponent(BaseComponent):
         
         # 回调函数
         self.on_log_added: Optional[Callable[[LogEntry], None]] = None
+    
+    def update(self, data: Any = None) -> None:
+        """更新组件状态"""
+        # LogPanel组件暂时不需要特殊的更新逻辑
+        pass
     
     def add_log(self, level: LogLevel, message: str, source: str = "", data: Any = None) -> None:
         """添加日志条目"""
@@ -120,7 +125,7 @@ class LogPanelComponent(BaseComponent):
     def clear_logs(self) -> None:
         """清空日志"""
         self.logs.clear()
-        self.scroll_offset = 0
+        self.log_scroll_offset = 0
     
     def set_max_logs(self, max_logs: int) -> None:
         """设置最大日志条数"""
@@ -150,11 +155,11 @@ class LogPanelComponent(BaseComponent):
     
     def scroll_to_bottom(self) -> None:
         """滚动到底部"""
-        self.scroll_offset = max(0, len(self._get_filtered_logs()) - self.size.height)
+        self.log_scroll_offset = max(0, len(self._get_filtered_logs()) - self.size.height)
     
     def scroll_to_top(self) -> None:
         """滚动到顶部"""
-        self.scroll_offset = 0
+        self.log_scroll_offset = 0
     
     def _get_filtered_logs(self) -> List[LogEntry]:
         """获取过滤后的日志"""
@@ -255,7 +260,7 @@ class LogPanelComponent(BaseComponent):
         max_width = self.size.width
         
         # 从滚动偏移开始渲染
-        for log in filtered_logs[self.scroll_offset:]:
+        for log in filtered_logs[self.log_scroll_offset:]:
             if current_line >= self.size.height:
                 break
             
@@ -300,24 +305,24 @@ class LogPanelComponent(BaseComponent):
         
         if key == "up" or key == "k":
             # 向上滚动
-            if self.scroll_offset > 0:
-                self.scroll_offset -= 1
+            if self.log_scroll_offset > 0:
+                self.log_scroll_offset -= 1
             return True
         
         elif key == "down" or key == "j":
             # 向下滚动
-            if self.scroll_offset < max_scroll:
-                self.scroll_offset += 1
+            if self.log_scroll_offset < max_scroll:
+                self.log_scroll_offset += 1
             return True
         
         elif key == "page_up" or key == "ctrl+u":
             # 向上翻页
-            self.scroll_offset = max(0, self.scroll_offset - self.size.height // 2)
+            self.log_scroll_offset = max(0, self.log_scroll_offset - self.size.height // 2)
             return True
         
         elif key == "page_down" or key == "ctrl+d":
             # 向下翻页
-            self.scroll_offset = min(max_scroll, self.scroll_offset + self.size.height // 2)
+            self.log_scroll_offset = min(max_scroll, self.log_scroll_offset + self.size.height // 2)
             return True
         
         elif key == "home" or key == "g":
@@ -344,14 +349,14 @@ class LogPanelComponent(BaseComponent):
         
         # 鼠标滚轮处理
         if button == 4:  # 向上滚动
-            if self.scroll_offset > 0:
-                self.scroll_offset -= 1
+            if self.log_scroll_offset > 0:
+                self.log_scroll_offset -= 1
             return True
         elif button == 5:  # 向下滚动
             filtered_logs = self._get_filtered_logs()
             max_scroll = max(0, len(filtered_logs) - self.size.height)
-            if self.scroll_offset < max_scroll:
-                self.scroll_offset += 1
+            if self.log_scroll_offset < max_scroll:
+                self.log_scroll_offset += 1
             return True
         
         return False

@@ -34,13 +34,14 @@ class MenuGroup:
     name: str
     items: List[MenuItem]
     separator: bool = False
+    visible: bool = True
 
 
 class MenuBarComponent(BaseComponent):
     """菜单栏组件"""
     
-    def __init__(self, name: str = "menu_bar", position: MenuPosition = MenuPosition.TOP):
-        super().__init__(name)
+    def __init__(self, *, id: str | None = None, classes: str | None = None, name: str | None = None, position: MenuPosition = MenuPosition.TOP):
+        super().__init__(id=id, classes=classes, name=name)
         self.position = position
         self.menu_groups: List[MenuGroup] = []
         self.selected_group = -1
@@ -60,6 +61,11 @@ class MenuBarComponent(BaseComponent):
         self.disabled_color = get_color("text_muted")
         self.separator_color = get_color("border")
         self.shortcut_color = get_color("text_secondary")
+    
+    def update(self, data: Any = None) -> None:
+        """更新组件状态"""
+        # MenuBar组件暂时不需要特殊的更新逻辑
+        pass
     
     def add_menu_group(self, group: MenuGroup) -> None:
         """添加菜单组"""
