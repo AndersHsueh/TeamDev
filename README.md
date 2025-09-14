@@ -37,6 +37,14 @@ TeamDev包含以下AI角色：
 TeamDev/
 ├── core/                    # 核心模块
 │   ├── __init__.py
+│   ├── llm_provider/        # LLM服务提供商集成
+│   │   ├── __init__.py
+│   │   ├── base.py          # 抽象基类和数据结构
+│   │   ├── factory.py       # 工厂模式实现
+│   │   ├── openai_provider.py    # OpenAI API集成
+│   │   ├── ollama_provider.py    # Ollama本地模型集成
+│   │   ├── lmstudio_provider.py  # LMStudio本地模型集成
+│   │   └── mock_provider.py      # 测试模拟实现
 │   ├── roles/               # Agent角色实现
 │   │   ├── __init__.py
 │   │   ├── base_role.py     # 基础角色类
@@ -49,20 +57,58 @@ TeamDev/
 │       ├── __init__.py
 │       ├── manager.py       # 项目管理核心逻辑
 │       └── api.py           # 项目管理API接口
+├── tui_components/          # TUI界面组件
+│   ├── components/          # 各种UI组件实现
+│   ├── core/               # TUI核心模块
+│   └── examples/           # 组件使用示例
 ├── tui_form/                # TUI界面配置
 │   ├── mainform.json        # 主界面配置
 │   └── gui_dev_guide.md     # GUI开发指南
+├── ai_settings.json         # AI模型配置文件
 ├── agents-config.md         # Agent配置文件
 ├── requirements.txt         # 项目依赖
 └── README.md
+```
+
+## LLM 服务支持
+
+TeamDev 支持多种 LLM 服务提供商，通过统一的抽象接口实现无缝切换：
+
+### 支持的服务商
+
+1. **OpenAI API** - 支持 GPT-4、GPT-3.5 等模型
+2. **Ollama** - 本地部署的开源模型 (Llama、Mistral 等)
+3. **LMStudio** - 本地图形化模型管理和部署
+4. **Mock Provider** - 测试和开发用模拟实现
+
+### LMStudio 集成
+
+LMStudio 是一个本地化的 AI 模型管理平台，TeamDev 现已完全支持：
+
+**特点：**
+- 🔒 **完全本地化** - 数据不出本地环境，保障隐私安全
+- 🎯 **图形界面** - 通过友好的界面管理模型下载和运行
+- ⚡ **即插即用** - 兼容 OpenAI API 格式，无需额外配置
+- 🚀 **高性能** - 原生优化，支持 GPU 加速
+
+**配置示例：**
+```json
+{
+  "name": "lmstudio-local",
+  "type": "lmstudio",
+  "base_url": "http://127.0.0.1:1234",
+  "model_name": "your-model-name",
+  "temperature": 0.7
+}
 ```
 
 ## 安装和使用
 
 ### 环境要求
 
-- Python 3.8+
+- Python 3.9+
 - pip包管理器
+- LMStudio (推荐) 或其他支持的 LLM 服务
 
 ### 安装步骤
 
@@ -77,8 +123,14 @@ TeamDev/
    pip install -r requirements.txt
    ```
 
-3. 配置Agent（可选）：
-   编辑 `agents-config.md` 文件来调整Agent的行为和配置
+3. 配置 LLM 服务：
+   - **使用 LMStudio (推荐)**：
+     1. 下载并安装 LMStudio
+     2. 启动 LMStudio 并加载模型
+     3. 确保服务运行在 http://127.0.0.1:1234
+   
+   - **其他服务**：
+     编辑 `ai_settings.json` 配置您的 API 密钥和服务地址
 
 4. 运行项目：
    ```bash

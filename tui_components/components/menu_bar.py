@@ -40,7 +40,7 @@ class MenuGroup:
 class MenuBarComponent(BaseComponent):
     """菜单栏组件"""
     
-    def __init__(self, *, id: str | None = None, classes: str | None = None, name: str | None = None, position: MenuPosition = MenuPosition.TOP):
+    def __init__(self, *, id: Optional[str] = None, classes: Optional[str] = None, name: Optional[str] = None, position: MenuPosition = MenuPosition.TOP):
         super().__init__(id=id, classes=classes, name=name)
         self.position = position
         self.menu_groups: List[MenuGroup] = []

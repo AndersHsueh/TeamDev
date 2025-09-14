@@ -1,6 +1,24 @@
 """
-LLM Provider 工厂
-根据配置创建相应的 Provider 实例
+LLM Provider 工厂模块
+
+本模块实现了工厂模式，负责根据配置动态创建相应的 LLM Provider 实例。
+
+核心功能：
+- 工厂模式实现：根据配置类型动态创建不同的 Provider 实例
+- 类型注册机制：通过 PROVIDER_TYPES 字典管理支持的 Provider 类型
+- 配置验证：验证配置参数的完整性和有效性
+- 统一创建接口：提供便捷的静态方法和函数接口
+
+支持的 Provider 类型：
+- openai: OpenAI GPT 系列模型
+- ollama: 本地部署的 Ollama 模型
+- mock: 测试和开发用的模拟 Provider
+
+设计优势：
+- 解耦创建逻辑：将对象创建从业务逻辑中分离
+- 易于扩展：添加新的 Provider 类型只需修改类型映射
+- 配置驱动：支持从配置文件动态创建实例
+- 错误处理：完善的异常处理和日志记录
 """
 
 import logging
@@ -9,6 +27,7 @@ from typing import Dict, Any, Optional
 from .base import LLMProvider, LLMConfig
 from .openai_provider import OpenAIProvider
 from .ollama_provider import OllamaProvider
+from .lmstudio_provider import LMStudioProvider
 from .mock_provider import MockProvider
 
 logger = logging.getLogger(__name__)
@@ -25,6 +44,7 @@ class LLMProviderFactory:
     PROVIDER_TYPES = {
         "openai": OpenAIProvider,
         "ollama": OllamaProvider,
+        "lmstudio": LMStudioProvider,
         "mock": MockProvider,
     }
 

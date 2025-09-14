@@ -22,7 +22,7 @@ class AgentStatus(Enum):
 class AgentStatusComponent(BaseComponent):
     """Agent 状态显示组件"""
     
-    def __init__(self, *, id: str | None = None, classes: str | None = None, name: str | None = None):
+    def __init__(self, *, id: Optional[str] = None, classes: Optional[str] = None, name: Optional[str] = None):
         super().__init__(id=id, classes=classes, name=name)
         self.agent_name = "Agent"
         self.agent_avatar = "🤖"

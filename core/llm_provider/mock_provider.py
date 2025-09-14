@@ -1,6 +1,42 @@
 """
 Mock Provider 实现
-用于测试和开发的简单本地模拟
+
+本模块提供了一个用于测试和开发的模拟 LLM Provider。无需真实的AI服务，
+可以返回预设的模拟响应，方便进行单元测试、集成测试和离线开发。
+
+核心功能：
+- 零依赖：无需任何外部AI服务或网络连接
+- 预设响应：提供多种预设的中文模拟响应
+- 快速响应：模拟真实API的响应时间
+- 完整接口：实现完整的 LLMProvider 接口
+- 可控性：支持自定义响应内容和行为
+
+适用场景：
+- 单元测试：测试业务逻辑而不依赖真实AI服务
+- 集成测试：验证系统集成点的正确性
+- 开发阶段：无需配置真实API即可进行功能开发
+- 演示环境：提供稳定可控的演示效果
+- 离线开发：无网络环境下的开发和调试
+
+功能特性：
+- 随机响应：从预设响应池中随机选择
+- 模拟延迟：模拟真实API的响应时间
+- 统计信息：记录使用情况和token统计
+- 错误模拟：可配置模拟各种错误情况
+
+配置要求：
+- 无特殊依赖：只需要基础 Python 环境
+- model_name: 模拟模型名称 (默认: mock-model-v1)
+- temperature: 温度参数 (会被记录但不影响响应)
+
+使用示例：
+    config = LLMConfig(
+        name="test-mock",
+        type="mock",
+        model_name="mock-model-v1"
+    )
+    provider = MockProvider(config)
+    response = provider.generate([{"role": "user", "content": "测试"}])
 """
 
 import time

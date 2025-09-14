@@ -1,6 +1,45 @@
 """
 Ollama 本地模型 Provider 实现
-支持通过 Ollama API 调用本地部署的模型
+
+本模块实现了 Ollama 本地模型服务的集成，支持通过 HTTP API 调用本地部署的大语言模型。
+
+核心功能：
+- Ollama API 集成：通过 HTTP 请求调用本地 Ollama 服务
+- 本地模型支持：支持 Llama、Mistral、CodeLlama 等开源模型
+- 流式生成：支持流式响应，提升用户体验
+- 模型管理：支持检查可用模型列表和模型状态
+
+适用场景：
+- 私有化部署：完全本地运行，数据不出本地环境
+- 离线使用：无需网络连接即可使用AI功能
+- 成本控制：无API调用费用，硬件成本可控
+- 定制化：支持微调和自定义模型
+
+支持的模型：
+- Llama 系列 (llama2, llama3, code-llama 等)
+- Mistral 系列 (mistral, mixtral 等)
+- 其他 Ollama 支持的开源模型
+
+配置要求：
+- base_url: Ollama 服务地址 (默认: http://localhost:11434)
+- model_name: 模型名称 (默认: llama2)
+- temperature: 温度参数 (0.0-1.0)
+- max_tokens: 最大生成令牌数
+
+依赖项：
+- requests: HTTP 请求库
+- Ollama 服务: 需要本地安装并运行 Ollama
+
+使用示例：
+    config = LLMConfig(
+        name="local-llama",
+        type="ollama", 
+        base_url="http://localhost:11434",
+        model_name="llama2",
+        temperature=0.7
+    )
+    provider = OllamaProvider(config)
+    response = provider.generate([{"role": "user", "content": "Hello"}])
 """
 
 import time

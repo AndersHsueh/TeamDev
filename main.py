@@ -1,7 +1,7 @@
 import asyncio
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
-from textual.widgets import Header, Footer
+from textual.widgets import Header, Footer, Input
 from textual.screen import ModalScreen
 
 # A-la-carte imports from existing TUI components
@@ -12,6 +12,7 @@ from tui_components.components.input_box import InputBoxComponent
 from tui_components.components.log_panel import LogPanelComponent
 from tui_components.components.menu_bar import MenuBarComponent, MenuGroup, MenuItem
 from tui_components.components.project_selector import ProjectSelectorComponent, Project
+from tui_components.components.status_panel import StatusPanelComponent
 
 def get_project_list() -> list[Project]:
     """Placeholder for project manager API."""
@@ -58,7 +59,14 @@ class TeamDevApp(App):
     }
     #input_box {
         height: 3;
-        border-top: solid $accent;
+        border: solid $accent;
+        padding: 0 1;
+    }
+    #status_panel {
+        height: 1;
+        background: $accent-darken-3;
+        color: $text;
+        padding: 0 1;
     }
     """
     BINDINGS = [
@@ -68,11 +76,12 @@ class TeamDevApp(App):
 
     def __init__(self):
         super().__init__()
-        # 顶部标题 + 中部对话日志 + 底部输入框（gemini-cli 风格）
+        # 顶部标题 + 中部对话日志 + 底部输入框 + 状态栏（终端界面风格）
         from textual.widgets import Static
-        self.title_bar = Static("🔷 TeamDev — 本地多模型协作终端 (Ctrl+C 退出，输入 /help)", id="title")
+        self.title_bar = Static("🔷 TeamDev — 本地多模型协作终端 (Ctrl+Q 退出)", id="title")
         self.log_panel = LogPanelComponent(id="log_panel")
-        self.input_box = InputBoxComponent(id="input_box", placeholder="gemini> ")
+        self.input_box = Input(placeholder="User: > ", id="input_box")
+        self.status_panel = StatusPanelComponent(id="status_panel", default_message="TeamDev 就绪")
 
     def _setup_menu_bar(self) -> MenuBarComponent:
         file_menu = MenuGroup("File", [
@@ -97,14 +106,20 @@ class TeamDevApp(App):
         yield self.title_bar
         yield self.log_panel
         yield self.input_box
+        yield self.status_panel
 
     def on_mount(self) -> None:
         self.log_panel.set_max_logs(500)
         self.log_panel.set_auto_scroll(True)
         self.log_panel.add_info("欢迎使用 TeamDev 终端界面。", "system")
-        self.log_panel.add_info("界面风格参考 gemini-cli。按 Ctrl+C 退出，输入 /help 查看帮助。", "system")
-        # Set focus to the input box after mounting
-        self.call_after_refresh(self.focus_input_box)
+        self.log_panel.add_info("界面风格为终端交互界面。按 Ctrl+C 退出，输入 /help 查看帮助。", "system")
+        
+        # 初始化状态栏
+        self.status_panel.show_shortcuts()
+        self.status_panel.set_info("欢迎使用 TeamDev！输入命令开始工作")
+        
+        # Set focus to the input box after mounting using a more reliable method
+        self.set_focus(self.input_box)
     
     def focus_input_box(self) -> None:
         """Focus the input box after app is mounted"""
@@ -115,8 +130,12 @@ class TeamDevApp(App):
             # If direct focus fails, we'll rely on the component's natural behavior
             print(f"Could not directly set focus: {e}")
 
-    async def on_input_box_component_submitted(self, event: InputBoxComponent.Submitted) -> None:
+    async def on_input_submitted(self, event: Input.Submitted) -> None:
+        """处理原生Input组件的提交事件"""
         text = event.value.strip()
+        
+        # 清空输入框
+        event.input.clear()
 
         # 斜杠命令
         if text.startswith("/"):
@@ -125,20 +144,37 @@ class TeamDevApp(App):
                 self.log_panel.add_info("/help  显示帮助", "help")
                 self.log_panel.add_info("/clear 清空对话", "help")
                 self.log_panel.add_info("/quit  退出程序（或直接 Ctrl+C）", "help")
+                self.status_panel.set_success("帮助信息已显示", auto_clear=True)
                 return
             if text in ("/clear", "/cls"):
                 self.log_panel.clear_logs()
                 self.log_panel.add_info("已清空。", "system")
+                self.status_panel.set_success("对话已清空", auto_clear=True)
                 return
             if text in ("/quit", "/exit"):
+                self.status_panel.set_info("正在退出...")
                 self.exit(message="再见！")
                 return
 
         # 普通回显（占位）
         if text:
+            self.status_panel.show_busy("处理消息")
             self.log_panel.add_info(text, "user")
             await asyncio.sleep(0.2)
             self.log_panel.add_info("(占位回复) 我已收到你的消息。", "assistant")
+            self.status_panel.show_ready()
+
+    # 保留旧的事件处理方法以防兼容性问题
+    async def on_input_box_component_submitted(self, event: InputBoxComponent.Submitted) -> None:
+        """处理自定义InputBoxComponent的提交事件（兼容性保留）"""
+        # 将事件转发到新的处理方法
+        class MockInputEvent:
+            def __init__(self, value, input_widget):
+                self.value = value
+                self.input = input_widget
+        
+        mock_event = MockInputEvent(event.value, self.input_box)
+        await self.on_input_submitted(mock_event)
 
     def on_file_explorer_component_file_selected(self, event: FileExplorerComponent.FileSelected) -> None:
         file_path = event.path

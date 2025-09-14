@@ -48,7 +48,7 @@ class LogEntry:
 class LogPanelComponent(BaseComponent):
     """日志输出面板组件"""
     
-    def __init__(self, *, id: str | None = None, classes: str | None = None, name: str | None = None):
+    def __init__(self, *, id: Optional[str] = None, classes: Optional[str] = None, name: Optional[str] = None):
         super().__init__(id=id, classes=classes, name=name)
         self.logs: List[LogEntry] = []
         self.max_logs = 1000  # 最大日志条数

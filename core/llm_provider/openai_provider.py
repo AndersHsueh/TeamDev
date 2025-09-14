@@ -1,6 +1,39 @@
 """
 OpenAI API Provider 实现
-支持 GPT 系列模型
+
+本模块实现了 OpenAI API 的集成，支持调用 GPT 系列模型。
+
+核心功能：
+- OpenAI API 集成：通过官方 openai 库调用 GPT 模型
+- 完整配置支持：支持自定义 API Key、Base URL、模型参数等
+- 错误处理：完善的异常处理和重试机制
+- 响应格式化：将 OpenAI 响应转换为统一的 LLMResponse 格式
+
+支持的模型：
+- GPT-4 系列 (gpt-4, gpt-4-turbo, gpt-4o 等)
+- GPT-3.5 系列 (gpt-3.5-turbo 等)
+- 其他兼容 OpenAI API 格式的模型
+
+配置要求：
+- api_key: OpenAI API 密钥 (必需)
+- model_name: 模型名称 (默认: gpt-3.5-turbo)
+- base_url: API 基础 URL (可选，支持自部署服务)
+- temperature: 温度参数 (0.0-2.0)
+- max_tokens: 最大生成令牌数
+
+依赖项：
+- openai: OpenAI 官方 Python 库 (>= 1.0.0)
+
+使用示例：
+    config = LLMConfig(
+        name="gpt4",
+        type="openai",
+        api_key="sk-...",
+        model_name="gpt-4",
+        temperature=0.7
+    )
+    provider = OpenAIProvider(config)
+    response = provider.generate([{"role": "user", "content": "Hello"}])
 """
 
 import time

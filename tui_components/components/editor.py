@@ -38,7 +38,7 @@ class Selection:
 class EditorComponent(BaseComponent):
     """文本/代码编辑器组件"""
     
-    def __init__(self, *, id: str | None = None, classes: str | None = None, name: str | None = None):
+    def __init__(self, *, id: Optional[str] = None, classes: Optional[str] = None, name: Optional[str] = None):
         super().__init__(id=id, classes=classes, name=name)
         self.lines: List[str] = [""]  # 文本行
         self.cursor = Position(0, 0)  # 光标位置
@@ -75,7 +75,7 @@ class EditorComponent(BaseComponent):
         return {
             "python": [
                 (r'\b(def|class|if|else|elif|for|while|try|except|finally|with|import|from|return|yield|lambda)\b', 'keyword'),
-                (r'\b(True|False|None)\b', 'constant'),
+                (r'\b(True|Optional[False])\b', 'constant'),
                 (r'"[^"]*"', 'string'),
                 (r"'[^']*'", 'string'),
                 (r'#.*$', 'comment'),

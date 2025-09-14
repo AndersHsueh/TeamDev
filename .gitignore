@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+# qwen
+.qwen
+test*
+test*.py
+
 # Distribution / packaging
 .Python
 build/

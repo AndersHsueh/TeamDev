@@ -4,7 +4,7 @@ TUI 组件基类
 """
 from textual.widget import Widget
 from abc import abstractmethod
-from typing import Any
+from typing import Any, Optional
 
 class BaseComponent(Widget):
     """所有 TUI 组件的基类, 继承自 Textual Widget"""
@@ -12,9 +12,9 @@ class BaseComponent(Widget):
     def __init__(
         self,
         *,
-        name: str | None = None,
-        id: str | None = None,
-        classes: str | None = None,
+        name: Optional[str] = None,
+        id: Optional[str] = None,
+        classes: Optional[str] = None,
         disabled: bool = False,
     ) -> None:
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)

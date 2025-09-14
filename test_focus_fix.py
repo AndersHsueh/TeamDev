@@ -54,8 +54,10 @@ def test_syntax():
             return False
             
         # Check that focus is called in on_mount
-        if 'call_after_refresh' in content and 'focus_input_box' in content:
+        if 'set_focus' in content and 'input_box' in content:
             print("✅ 焦点设置调用已添加")
+        elif 'call_after_refresh' in content and 'focus_input_box' in content:
+            print("✅ 焦点设置调用已添加（旧版本）")
         else:
             print("❌ 未找到焦点设置调用") 
             return False

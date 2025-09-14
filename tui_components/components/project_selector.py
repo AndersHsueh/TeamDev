@@ -36,7 +36,7 @@ class ProjectSelectorComponent(BaseComponent):
             self.project = project
             super().__init__()
 
-    def __init__(self, projects: List[Project], *, id: str | None = None, classes: str | None = None, name: str | None = None):
+    def __init__(self, projects: List[Project], *, id: Optional[str] = None, classes: Optional[str] = None, name: Optional[str] = None):
         super().__init__(id=id, classes=classes, name=name)
         self.projects = projects
         self.selected_index = 0

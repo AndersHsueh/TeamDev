@@ -55,7 +55,7 @@ class FileExplorerComponent(BaseComponent):
             self.path = path
             super().__init__()
 
-    def __init__(self, *, id: str | None = None, classes: str | None = None, name: str | None = None):
+    def __init__(self, *, id: Optional[str] = None, classes: Optional[str] = None, name: Optional[str] = None):
         super().__init__(id=id, classes=classes, name=name)
         self.root_path = "."
         self.root_node: Optional[FileNode] = None
