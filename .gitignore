@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-user-documents/*.*
 
 # C extensions
 *.so
@@ -21,7 +20,6 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -51,6 +49,7 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+cover/
 
 # Translations
 *.mo
@@ -73,6 +72,7 @@ instance/
 docs/_build/
 
 # PyBuilder
+.pybuilder/
 target/
 
 # Jupyter Notebook
@@ -83,6 +83,8 @@ profile_default/
 ipython_config.py
 
 # pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
 .python-version
 
 # pipenv
@@ -90,9 +92,24 @@ ipython_config.py
 #   However, in case of collaboration, if having platform-specific dependencies or dependencies
 #   having no cross-platform support, pipenv may install dependencies that don't work, or not
 #   install all needed dependencies.
-#Pipfile.lock
+Pipfile.lock
 
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+poetry.lock
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#pdm.lock
+#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
+#   in version control.
+#   https://pdm.fming.dev/#use-with-ide
+.pdm.toml
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
 
 # Celery stuff
@@ -108,11 +125,11 @@ celerybeat.pid
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
+env.bak
+venv.bak
 
 # Spyder project settings
-.spyerproject
+.spyderproject
 .spyproject
 
 # Rope project settings
@@ -129,12 +146,35 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# IDE files
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# VS Code
 .vscode/
-.idea/
-*.swp
-*.swo
-*~
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Temporary files
+*.tmp
+*.temp
+
+# Log files
+*.log
+
+# OS generated files
 .DS_Store
 .DS_Store?
 ._*
@@ -143,44 +183,11 @@ dmypy.json
 ehthumbs.db
 Thumbs.db
 
-# Project specific
-*.log
-temp/
-tmp/
-*.tmp
-*.bak
-*.backup
-
-# Test outputs
-test_output/
-test_results/
-
-# Documentation builds
-docs/build/
-docs/_build/
-
-# Local configuration
-config.local.py
-settings.local.py
-
-# Virtual environments (if using venv)
-venv/
-.venv/
-
-# IDE specific files
-.vscode/settings.json
-
-# Python cache and temp directories (if not already included)
-.pytest_cache/
-pytest_cache/
-
-# Logs
-logs/*.log
-
-# Environment files (if not already included)
-.env.local
-.env.*.local*.pyc
-__pycache__/
+# Project specific ignores
+*.pyc
+__pycache__
 .env
-.DS_Store
-*.log
+.venv/
+venv/
+.git/
+.gitignore.bak

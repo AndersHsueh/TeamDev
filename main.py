@@ -63,6 +63,7 @@ class TeamDevApp(App):
     """
     BINDINGS = [
         ("ctrl+t", "toggle_theme", "Toggle Theme"),
+        ("ctrl+q", "quit_app", "Quit Application"),
     ]
 
     def __init__(self):
@@ -102,6 +103,17 @@ class TeamDevApp(App):
         self.log_panel.set_auto_scroll(True)
         self.log_panel.add_info("欢迎使用 TeamDev 终端界面。", "system")
         self.log_panel.add_info("界面风格参考 gemini-cli。按 Ctrl+C 退出，输入 /help 查看帮助。", "system")
+        # Set focus to the input box after mounting
+        self.call_after_refresh(self.focus_input_box)
+    
+    def focus_input_box(self) -> None:
+        """Focus the input box after app is mounted"""
+        # Try to focus on the input component
+        try:
+            self.input_box.focus()
+        except Exception as e:
+            # If direct focus fails, we'll rely on the component's natural behavior
+            print(f"Could not directly set focus: {e}")
 
     async def on_input_box_component_submitted(self, event: InputBoxComponent.Submitted) -> None:
         text = event.value.strip()
@@ -150,6 +162,10 @@ class TeamDevApp(App):
         
     def action_toggle_theme(self) -> None:
         self.dark = not self.dark
+
+    def action_quit_app(self) -> None:
+        """Quit the application directly."""
+        self.exit(message="再见！")
 
 if __name__ == "__main__":
     app = TeamDevApp()

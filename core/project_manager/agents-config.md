@@ -4,7 +4,7 @@
 
 ---
 
-## 📌 jim (需求分析员 / 产品经理)
+## 📌 monica (需求分析员 / 产品经理)
 - **身份**: 软件系统顾问、需求分析员  
 - **任务**: 收集用户需求、输出 PRD、确认功能优先级  
 - **主模型**: `local,openai/gpt-oss-20b`  
@@ -92,7 +92,7 @@
 flowchart TD
 
     subgraph Team["👥 独立开发团队"]
-        jim["Jim\n需求分析 / 产品经理"] 
+        monica["Monica\n需求分析 / 产品经理"] 
         jack["Jack\n项目经理"]
         amy["Amy\n文档助手"]
         happen["Happen\n开发工程师"]
@@ -109,7 +109,7 @@ flowchart TD
         gemma["Google Gemma 4B\n(总结/文档)"]
         gpt20b["GPT-OSS-20B\n(需求/分析)"]
         qwen30b["Qwen3-Coder-30B\n(代码生成)"]
-        seed36b["Seed-OSS-36B\n(战略/架构)"]
+        seed36b["Seed-OSS-36b\n(战略/架构)"]
     end
 
     subgraph Flow["📈 任务流转"]
@@ -125,8 +125,8 @@ flowchart TD
     end
 
     %% 团队 → 模型
-    jim --> gpt20b
-    jim -.复杂需求.-> seed36b
+    monica --> gpt20b
+    monica -.复杂需求.-> seed36b
     jack --> mistral
     jack --> qwen4b
     amy --> gemma
@@ -153,5 +153,8 @@ flowchart TD
     seed36b --> architecture
     gemma --> design
     gpt20b --> deployment
+
+    
+```
 
     

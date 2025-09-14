@@ -1,401 +1,285 @@
 """
 项目管理API接口
-提供给Agent使用的标准化接口
+提供项目管理的HTTP API接口
 """
 
+from flask import Blueprint, jsonify, request
+from typing import Dict, Any, Optional
 import logging
-from typing import Dict, Any, Optional, List
 
-from .manager import ProjectManager, get_project_manager
+from .manager import get_project_manager
 
 logger = logging.getLogger(__name__)
 
+# 创建蓝图
+project_bp = Blueprint('project', __name__, url_prefix='/api/project')
 
-# P0 - 必须实现的基础接口
-def create_project(name: str, description: str = "") -> Dict[str, Any]:
+# 获取项目管理器实例
+project_manager = get_project_manager()
+
+
+@project_bp.route('/create', methods=['POST'])
+def create_project():
     """
     创建新项目
-
-    Args:
-        name: 项目名称
-        description: 项目描述
-
-    Returns:
-        Dict[str, Any]: 项目信息
+    
+    请求体:
+    {
+        "name": "项目名称",
+        "description": "项目描述"
+    }
+    
+    返回:
+    {
+        "success": true,
+        "data": {
+            "id": "项目ID",
+            "name": "项目名称",
+            "description": "项目描述",
+            "created_at": "创建时间"
+        }
+    }
     """
     try:
-        pm = get_project_manager()
-        result = pm.create_project(name, description)
-        logger.info(f"API: 项目创建成功 - {name}")
-        return {
-            "success": True,
-            "data": result,
-            "message": f"项目 '{name}' 创建成功"
-        }
-    except Exception as e:
-        logger.error(f"API: 项目创建失败 - {name}: {e}")
-        return {
-            "success": False,
-            "error": str(e),
-            "message": f"项目 '{name}' 创建失败"
-        }
-
-
-def read_project_info(project_name: str) -> Dict[str, Any]:
-    """
-    读取项目信息
-
-    Args:
-        project_name: 项目名称
-
-    Returns:
-        Dict[str, Any]: 项目信息
-    """
-    try:
-        pm = get_project_manager()
-        result = pm.read_project_info(project_name)
-        if result:
-            return {
-                "success": True,
-                "data": result,
-                "message": f"项目 '{project_name}' 信息读取成功"
-            }
-        else:
-            return {
+        data = request.get_json()
+        name = data.get('name')
+        description = data.get('description', '')
+        
+        if not name:
+            return jsonify({
                 "success": False,
-                "error": "项目不存在",
-                "message": f"项目 '{project_name}' 不存在"
-            }
+                "error": "项目名称不能为空"
+            }), 400
+        
+        # 创建项目
+        project_info = project_manager.create_project(name, description)
+        
+        return jsonify({
+            "success": True,
+            "data": project_info
+        })
+        
     except Exception as e:
-        logger.error(f"API: 项目信息读取失败 - {project_name}: {e}")
-        return {
+        logger.error(f"创建项目失败: {e}")
+        return jsonify({
             "success": False,
-            "error": str(e),
-            "message": f"项目 '{project_name}' 信息读取失败"
+            "error": "创建项目失败"
+        }), 500
+
+
+@project_bp.route('/list', methods=['GET'])
+def list_projects():
+    """
+    列出所有项目
+    
+    返回:
+    {
+        "success": true,
+        "data": [
+            {
+                "id": "项目ID",
+                "name": "项目名称",
+                "description": "项目描述",
+                "created_at": "创建时间",
+                "status": "项目状态"
+            }
+        ]
+    }
+    """
+    try:
+        projects = project_manager.list_projects()
+        
+        return jsonify({
+            "success": True,
+            "data": projects
+        })
+        
+    except Exception as e:
+        logger.error(f"获取项目列表失败: {e}")
+        return jsonify({
+            "success": False,
+            "error": "获取项目列表失败"
+        }), 500
+
+
+@project_bp.route('/switch/<project_name>', methods=['POST'])
+def switch_project(project_name):
+    """
+    切换当前项目
+    
+    参数:
+    project_name: 项目名称
+    
+    返回:
+    {
+        "success": true,
+        "message": "切换成功"
+    }
+    """
+    try:
+        success = project_manager.switch_project(project_name)
+        
+        if success:
+            return jsonify({
+                "success": True,
+                "message": f"已切换到项目: {project_name}"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": f"切换项目失败: {project_name}"
+            }), 404
+            
+    except Exception as e:
+        logger.error(f"切换项目失败: {e}")
+        return jsonify({
+            "success": False,
+            "error": "切换项目失败"
+        }), 500
+
+
+@project_bp.route('/info/<project_name>', methods=['GET'])
+def get_project_info(project_name):
+    """
+    获取项目信息
+    
+    参数:
+    project_name: 项目名称
+    
+    返回:
+    {
+        "success": true,
+        "data": {
+            "id": "项目ID",
+            "name": "项目名称",
+            "description": "项目描述",
+            "created_at": "创建时间",
+            "status": "项目状态"
         }
+    }
+    """
+    try:
+        project_info = project_manager.read_project_info(project_name)
+        
+        if project_info:
+            return jsonify({
+                "success": True,
+                "data": project_info
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": f"项目不存在: {project_name}"
+            }), 404
+            
+    except Exception as e:
+        logger.error(f"获取项目信息失败: {e}")
+        return jsonify({
+            "success": False,
+            "error": "获取项目信息失败"
+        }), 500
 
 
-def update_project_info(project_name: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+@project_bp.route('/update/<project_name>', methods=['POST'])
+def update_project(project_name):
     """
     更新项目信息
-
-    Args:
-        project_name: 项目名称
-        updates: 要更新的字段
-
-    Returns:
-        Dict[str, Any]: 更新结果
+    
+    参数:
+    project_name: 项目名称
+    
+    请求体:
+    {
+        "description": "新的项目描述",
+        "status": "新的项目状态"
+    }
+    
+    返回:
+    {
+        "success": true,
+        "message": "更新成功"
+    }
     """
     try:
-        pm = get_project_manager()
-        success = pm.update_project_info(project_name, updates)
+        data = request.get_json()
+        
+        # 更新项目信息
+        success = project_manager.update_project_info(project_name, data)
+        
         if success:
-            return {
+            return jsonify({
                 "success": True,
-                "message": f"项目 '{project_name}' 信息更新成功"
-            }
+                "message": "项目信息更新成功"
+            })
         else:
-            return {
+            return jsonify({
                 "success": False,
-                "error": "更新失败",
-                "message": f"项目 '{project_name}' 信息更新失败"
-            }
+                "error": f"更新项目信息失败: {project_name}"
+            }), 404
+            
     except Exception as e:
-        logger.error(f"API: 项目信息更新失败 - {project_name}: {e}")
-        return {
+        logger.error(f"更新项目信息失败: {e}")
+        return jsonify({
             "success": False,
-            "error": str(e),
-            "message": f"项目 '{project_name}' 信息更新失败"
-        }
+            "error": "更新项目信息失败"
+        }), 500
 
 
-def switch_project(project_name: str) -> Dict[str, Any]:
-    """
-    切换当前项目上下文
-
-    Args:
-        project_name: 项目名称
-
-    Returns:
-        Dict[str, Any]: 切换结果
-    """
-    try:
-        pm = get_project_manager()
-        success = pm.switch_project(project_name)
-        if success:
-            return {
-                "success": True,
-                "message": f"已切换到项目 '{project_name}'"
-            }
-        else:
-            return {
-                "success": False,
-                "error": "项目不存在",
-                "message": f"项目 '{project_name}' 不存在或无法切换"
-            }
-    except Exception as e:
-        logger.error(f"API: 项目切换失败 - {project_name}: {e}")
-        return {
-            "success": False,
-            "error": str(e),
-            "message": f"项目 '{project_name}' 切换失败"
-        }
-
-
-# P1 - Agent协作支持接口
-def write_agent_doc(project_name: str, agent_name: str, filename: str, content: str) -> Dict[str, Any]:
+def write_agent_doc(project_name: str, agent_name: str, content: str) -> bool:
     """
     为Agent写入文档
-
+    
     Args:
-        project_name: 项目名称
-        agent_name: Agent名称 (jim, jacky, happen, fei, peipei)
-        filename: 文件名
-        content: 文档内容
-
+        project_name (str): 项目名称
+        agent_name (str): Agent名称 (monica, jacky, happen, fei, peipei)
+        content (str): 文档内容
+    
     Returns:
-        Dict[str, Any]: 写入结果
+        bool: 是否写入成功
     """
     try:
-        pm = get_project_manager()
-
-        # 切换到指定项目
-        switch_result = pm.switch_project(project_name)
-        if not switch_result:
-            return {
-                "success": False,
-                "error": "项目不存在",
-                "message": f"项目 '{project_name}' 不存在"
-            }
-
         # 构建文档路径
-        doc_path = f"./user-documents/{project_name}/docs/{agent_name}/{filename}"
-
+        doc_path = f"./user-documents/{project_name}/docs/{agent_name}/index.md"
+        
         # 保存文档
-        success = pm.save_with_backup(doc_path, content, agent_name)
-
+        success = project_manager.save_with_backup(doc_path, content)
+        
         if success:
-            return {
-                "success": True,
-                "message": f"Agent文档保存成功: {doc_path}",
-                "path": doc_path
-            }
+            logger.info(f"Agent文档写入成功: {agent_name}")
         else:
-            return {
-                "success": False,
-                "error": "保存失败",
-                "message": f"Agent文档保存失败: {doc_path}"
-            }
+            logger.error(f"Agent文档写入失败: {agent_name}")
+            
+        return success
+        
     except Exception as e:
-        logger.error(f"API: Agent文档写入失败 - {project_name}/{agent_name}/{filename}: {e}")
-        return {
-            "success": False,
-            "error": str(e),
-            "message": f"Agent文档写入失败: {filename}"
-        }
+        logger.error(f"写入Agent文档时发生错误: {e}")
+        return False
 
 
-def save_code_file(project_name: str, filepath: str, content: str) -> Dict[str, Any]:
+def read_agent_doc(project_name: str, agent_name: str) -> Optional[str]:
     """
-    保存代码文件
-
+    读取Agent文档
+    
     Args:
-        project_name: 项目名称
-        filepath: 相对路径 (相对于src目录)
-        content: 代码内容
-
+        project_name (str): 项目名称
+        agent_name (str): Agent名称 (monica, jacky, happen, fei, peipei)
+    
     Returns:
-        Dict[str, Any]: 保存结果
+        Optional[str]: 文档内容，如果不存在返回None
     """
     try:
-        pm = get_project_manager()
-
-        # 切换到指定项目
-        switch_result = pm.switch_project(project_name)
-        if not switch_result:
-            return {
-                "success": False,
-                "error": "项目不存在",
-                "message": f"项目 '{project_name}' 不存在"
-            }
-
-        # 构建代码文件路径
-        code_path = f"./user-documents/{project_name}/src/{filepath}"
-
-        # 保存代码文件
-        success = pm.save_with_backup(code_path, content, "happen")
-
-        if success:
-            return {
-                "success": True,
-                "message": f"代码文件保存成功: {code_path}",
-                "path": code_path
-            }
-        else:
-            return {
-                "success": False,
-                "error": "保存失败",
-                "message": f"代码文件保存失败: {code_path}"
-            }
+        # 构建文档路径
+        doc_path = f"./user-documents/{project_name}/docs/{agent_name}/index.md"
+        
+        # 读取文档
+        with open(doc_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+            
+        return content
+        
+    except FileNotFoundError:
+        logger.warning(f"Agent文档不存在: {agent_name}")
+        return None
     except Exception as e:
-        logger.error(f"API: 代码文件保存失败 - {project_name}/{filepath}: {e}")
-        return {
-            "success": False,
-            "error": str(e),
-            "message": f"代码文件保存失败: {filepath}"
-        }
-
-
-# P2 - 增强功能接口
-def list_projects() -> Dict[str, Any]:
-    """
-    列出所有项目及其状态
-
-    Returns:
-        Dict[str, Any]: 项目列表
-    """
-    try:
-        pm = get_project_manager()
-        projects = pm.list_projects()
-
-        return {
-            "success": True,
-            "data": projects,
-            "count": len(projects),
-            "message": f"找到 {len(projects)} 个项目"
-        }
-    except Exception as e:
-        logger.error(f"API: 项目列表获取失败: {e}")
-        return {
-            "success": False,
-            "error": str(e),
-            "message": "项目列表获取失败"
-        }
-
-
-def get_project_progress(project_name: str) -> Dict[str, Any]:
-    """
-    获取项目进度统计
-
-    Args:
-        project_name: 项目名称
-
-    Returns:
-        Dict[str, Any]: 项目进度信息
-    """
-    try:
-        # 读取项目信息
-        project_info = read_project_info(project_name)
-        if not project_info["success"]:
-            return project_info
-
-        # 这里可以根据实际的Todo状态进行统计
-        # 目前返回基础信息
-        progress = {
-            "project_name": project_name,
-            "status": project_info["data"]["status"],
-            "total_tasks": 12,  # 从模板中的任务数
-            "completed_tasks": 0,
-            "in_progress_tasks": 0,
-            "pending_tasks": 12,
-            "completion_rate": 0.0
-        }
-
-        return {
-            "success": True,
-            "data": progress,
-            "message": f"项目 '{project_name}' 进度获取成功"
-        }
-    except Exception as e:
-        logger.error(f"API: 项目进度获取失败 - {project_name}: {e}")
-        return {
-            "success": False,
-            "error": str(e),
-            "message": f"项目 '{project_name}' 进度获取失败"
-        }
-
-
-def validate_project_structure(project_name: str) -> Dict[str, Any]:
-    """
-    验证项目目录结构完整性
-
-    Args:
-        project_name: 项目名称
-
-    Returns:
-        Dict[str, Any]: 验证结果
-    """
-    try:
-        import os
-        pm = get_project_manager()
-
-        project_path = f"./user-documents/{project_name}"
-        if not os.path.exists(project_path):
-            return {
-                "success": False,
-                "error": "项目目录不存在",
-                "message": f"项目 '{project_name}' 目录不存在"
-            }
-
-        # 检查必需的文件和目录
-        required_items = [
-            "project-info.md",
-            "docs",
-            "src",
-            "assets",
-            "docs/jim",
-            "docs/jacky",
-            "docs/happen",
-            "docs/fei",
-            "docs/peipei"
-        ]
-
-        missing_items = []
-        for item in required_items:
-            item_path = os.path.join(project_path, item)
-            if not os.path.exists(item_path):
-                missing_items.append(item)
-
-        if missing_items:
-            return {
-                "success": False,
-                "error": "目录结构不完整",
-                "missing_items": missing_items,
-                "message": f"项目 '{project_name}' 缺少以下项目: {', '.join(missing_items)}"
-            }
-
-        return {
-            "success": True,
-            "message": f"项目 '{project_name}' 目录结构验证通过"
-        }
-    except Exception as e:
-        logger.error(f"API: 项目结构验证失败 - {project_name}: {e}")
-        return {
-            "success": False,
-            "error": str(e),
-            "message": f"项目 '{project_name}' 结构验证失败"
-        }
-
-
-# 工具函数
-def get_current_project() -> Optional[str]:
-    """
-    获取当前项目名称
-
-    Returns:
-        Optional[str]: 当前项目名称，如果没有设置则返回None
-    """
-    pm = get_project_manager()
-    return pm.current_project
-
-
-def set_project_root(root_path: str):
-    """
-    设置项目根目录
-
-    Args:
-        root_path: 新的根目录路径
-    """
-    pm = get_project_manager()
-    pm.projects_root = root_path
-    pm._ensure_project_root_exists()
+        logger.error(f"读取Agent文档时发生错误: {e}")
+        return None

@@ -1,10 +1,10 @@
 """
 角色系统模块
-提供各种 AI 角色的实现
+提供各种AI角色的实现和管理
 """
 
 from .base_role import Role, RoleContext, RoleAction
-from .jim import Jim
+from .monica import Monica
 from .jacky import Jacky
 from .happen import Happen
 from .fei import Fei
@@ -12,9 +12,9 @@ from .peipei import Peipei
 
 __all__ = [
     "Role",
-    "RoleContext",
+    "RoleContext", 
     "RoleAction",
-    "Jim",
+    "Monica",
     "Jacky",
     "Happen",
     "Fei",

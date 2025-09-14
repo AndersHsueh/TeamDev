@@ -62,7 +62,7 @@ class ProjectManager:
             os.makedirs(os.path.join(project_path, subdir), exist_ok=True)
 
         # 创建Agent特定的文档目录
-        agent_dirs = ["docs/jim", "docs/jacky", "docs/happen", "docs/fei", "docs/peipei"]
+        agent_dirs = ["docs/monica", "docs/jacky", "docs/happen", "docs/fei", "docs/peipei"]
         for agent_dir in agent_dirs:
             os.makedirs(os.path.join(project_path, agent_dir), exist_ok=True)
 
@@ -200,22 +200,24 @@ class ProjectManager:
             return False
 
         try:
-            # 确保文件目录存在
+            # 确保目录存在
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-            # 如果文件已存在，先备份
+            # 创建备份（如果文件已存在）
             if os.path.exists(file_path):
-                self._create_backup(file_path)
+                backup_path = f"{file_path}.backup"
+                os.rename(file_path, backup_path)
+                logger.debug(f"已创建备份: {backup_path}")
 
-            # 保存新内容
+            # 写入新文件
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(content)
 
-            logger.info(f"文件保存成功并已备份: {file_path}")
+            logger.info(f"文件保存成功: {file_path}")
             return True
 
         except Exception as e:
-            logger.error(f"保存文件失败: {e}")
+            logger.error(f"保存文件失败: {file_path}, 错误: {e}")
             return False
 
     def _generate_project_id(self, name: str) -> str:
@@ -228,128 +230,120 @@ class ProjectManager:
         Returns:
             str: 项目ID
         """
-        # 简单的ID生成逻辑
-        import uuid
-        return str(uuid.uuid4())[:8]
+        # 简单的项目ID生成逻辑：使用名称和时间戳
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        return f"proj_{name.lower().replace(' ', '_')}_{timestamp}"
 
-    def _create_project_info_file(self, project_name: str, project_info: Dict[str, Any]):
+    def _create_project_info_file(self, project_name: str, project_info: Dict[str, Any]) -> bool:
         """
-        创建 project-info.md 文件
+        创建项目信息文件
 
         Args:
             project_name: 项目名称
             project_info: 项目信息
+
+        Returns:
+            bool: 创建是否成功
         """
-        from .schema import PROJECT_INFO_TEMPLATE
+        try:
+            project_path = os.path.join(self.projects_root, project_name)
+            info_file = os.path.join(project_path, "project-info.md")
 
-        # 格式化时间
-        created_at = datetime.fromisoformat(project_info["created_at"]).strftime('%Y-%m-%d %H:%M:%S')
+            # 生成Markdown内容
+            content = f"""# {project_info['name']}
 
-        content = PROJECT_INFO_TEMPLATE.format(
-            project_name=project_info["name"],
-            project_id=project_info["id"],
-            description=project_info.get("description", "暂无描述"),
-            created_at=created_at,
-            status=project_info.get("status", "active"),
-            version=project_info.get("version", "1.0.0")
-        )
+## 项目信息
 
-        project_path = os.path.join(self.projects_root, project_name)
-        info_file = os.path.join(project_path, "project-info.md")
+- **ID**: {project_info['id']}
+- **描述**: {project_info['description']}
+- **创建时间**: {project_info['created_at']}
+- **最后更新**: {project_info['updated_at']}
+- **状态**: {project_info['status']}
+- **版本**: {project_info['version']}
 
-        with open(info_file, 'w', encoding='utf-8') as f:
-            f.write(content)
+## 项目结构
 
-    def _parse_project_info_file(self, project_name: str, info_file_path: str) -> Optional[Dict[str, Any]]:
+```
+{project_name}/
+├── src/           # 源代码目录
+├── docs/          # 文档目录
+│   ├── monica/    # 需求分析文档
+│   ├── jacky/     # 架构设计文档
+│   ├── happen/    # 开发实现文档
+│   ├── fei/       # 数据库设计文档
+│   └── peipei/    # 测试文档
+├── assets/        # 资源文件
+└── project-info.md # 项目信息文件
+```
+
+## 项目历史
+
+项目创建于 {project_info['created_at']}
+
+"""
+
+            # 写入文件
+            with open(info_file, 'w', encoding='utf-8') as f:
+                f.write(content)
+
+            logger.info(f"项目信息文件创建成功: {info_file}")
+            return True
+
+        except Exception as e:
+            logger.error(f"创建项目信息文件失败: {e}")
+            return False
+
+    def _parse_project_info_file(self, project_name: str, info_file: str) -> Optional[Dict[str, Any]]:
         """
-        解析 project-info.md 文件
+        解析项目信息文件
 
         Args:
             project_name: 项目名称
-            info_file_path: 文件路径
+            info_file: 信息文件路径
 
         Returns:
-            Optional[Dict[str, Any]]: 解析后的项目信息
+            Optional[Dict[str, Any]]: 项目信息，如果解析失败返回None
         """
         try:
-            with open(info_file_path, 'r', encoding='utf-8') as f:
+            with open(info_file, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            # 解析基本信息
-            project_info = {
-                "name": project_name,
-                "description": "",
-                "status": "active",
-                "version": "1.0.0",
-                "created_at": "",
-                "updated_at": datetime.now().isoformat()
-            }
-
+            # 简单解析Markdown文件中的信息
             lines = content.split('\n')
-            in_basic_info = False
+            project_info = {"name": project_name}
 
             for line in lines:
-                line = line.strip()
-                if line.startswith('- **项目ID**:'):
-                    project_info["id"] = line.split('`')[1]
-                elif line.startswith('- **项目名称**:'):
-                    project_info["name"] = line.split(':', 1)[1].strip()
-                elif line.startswith('- **项目描述**:'):
-                    project_info["description"] = line.split(':', 1)[1].strip()
-                elif line.startswith('- **创建时间**:'):
-                    project_info["created_at"] = line.split(':', 1)[1].strip()
-                elif line.startswith('- **项目状态**:'):
-                    project_info["status"] = line.split(':', 1)[1].strip()
-                elif line.startswith('- **项目版本**:'):
-                    project_info["version"] = line.split(':', 1)[1].strip()
+                if line.startswith("- **ID**: "):
+                    project_info["id"] = line.replace("- **ID**: ", "").strip()
+                elif line.startswith("- **描述**: "):
+                    project_info["description"] = line.replace("- **描述**: ", "").strip()
+                elif line.startswith("- **创建时间**: "):
+                    project_info["created_at"] = line.replace("- **创建时间**: ", "").strip()
+                elif line.startswith("- **最后更新**: "):
+                    project_info["updated_at"] = line.replace("- **最后更新**: ", "").strip()
+                elif line.startswith("- **状态**: "):
+                    project_info["status"] = line.replace("- **状态**: ", "").strip()
+                elif line.startswith("- **版本**: "):
+                    project_info["version"] = line.replace("- **版本**: ", "").strip()
 
             return project_info
 
         except Exception as e:
-            logger.error(f"解析项目信息文件失败 {info_file_path}: {e}")
+            logger.error(f"解析项目信息文件失败: {info_file}, 错误: {e}")
             return None
 
-    def _create_backup(self, file_path: str):
-        """
-        创建文件备份
-
-        Args:
-            file_path: 要备份的文件路径
-        """
-        if not self.current_project:
-            return
-
-        try:
-            # 获取相对路径
-            rel_path = os.path.relpath(file_path, self.projects_root)
-
-            # 创建备份目录
-            backup_dir = os.path.join(self.projects_root, self.current_project, "history")
-            os.makedirs(backup_dir, exist_ok=True)
-
-            # 生成备份文件名
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = os.path.basename(file_path)
-            backup_name = f"{os.path.splitext(filename)[0]}_{timestamp}{os.path.splitext(filename)[1]}"
-            backup_path = os.path.join(backup_dir, backup_name)
-
-            # 复制文件
-            import shutil
-            shutil.copy2(file_path, backup_path)
-
-            logger.debug(f"文件备份创建: {backup_path}")
-
-        except Exception as e:
-            logger.warning(f"创建备份失败: {e}")
-
-
 # 全局项目管理器实例
-_project_manager = None
+_project_manager_instance = None
 
 
 def get_project_manager() -> ProjectManager:
-    """获取全局项目管理器实例"""
-    global _project_manager
-    if _project_manager is None:
-        _project_manager = ProjectManager()
-    return _project_manager
+    """
+    获取全局项目管理器实例
+
+    Returns:
+        ProjectManager: 项目管理器实例
+    """
+    global _project_manager_instance
+    if _project_manager_instance is None:
+        _project_manager_instance = ProjectManager()
+    return _project_manager_instance

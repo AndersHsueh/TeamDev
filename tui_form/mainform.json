@@ -1,82 +1,197 @@
 {
-  "name": "mainform",
-  "type": "form",
-  "title": "TeamDev, Current Project: [Demo]",
-  "layout": "vertical",
-  "children": [
+  "version": "1.0",
+  "form": {
+    "id": "main",
+    "type": "form",
+    "title": "TeamDev - AI团队协作开发平台",
+    "size": {
+      "width": 120,
+      "height": 40
+    },
+    "components": [
       {
-          "type": "panel",
-          "id": "header",
-          "height": 1,
-          "content": "TeamDev, Current Project: [Demo]"
+        "id": "header",
+        "type": "text",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "size": {
+          "width": 120,
+          "height": 3
+        },
+        "props": {
+          "content": "TeamDev - AI团队协作开发平台 v0.1.0",
+          "align": "center",
+          "style": "bold"
+        }
       },
       {
-          "type": "split",
-          "direction": "horizontal",
-          "children": [
-              {
-                  "type": "panel",
-                  "id": "agent_list",
-                  "width": 20,
-                  "component": "AgentList",
-                  "data": {
-                      "agents": [
-                          {"id": "jim", "name": "Jim", "role": "Product", "status": "active", "color": "green"},
-                          {"id": "jacky", "name": "Jacky", "role": "Architect", "status": "working", "color": "yellow"},
-                          {"id": "pei", "name": "Peipei", "role": "Tester", "status": "idle", "color": "gray"}
-                      ]
-                  }
-              },
-              {
-                  "type": "panel",
-                  "id": "work_area",
-                  "component": "WorkArea",
-                  "scroll": "vertical",
-                  "data": {
-                      "lines": [
-                          "[Jim] Capturing requirements...",
-                          "[Jacky] Drafting architecture..."
-                      ]
-                  }
-              },
-              {
-                  "type": "panel",
-                  "id": "task_list",
-                  "width": 25,
-                  "component": "TaskList",
-                  "data": {
-                      "items": [
-                          {"step": 1, "agent": "Jacky", "status": "done", "title": "Setup initial architecture", "id": "t1"},
-                          {"step": 2, "agent": "Jim", "status": "working", "title": "Draft PRD", "id": "t2"},
-                          {"step": 3, "agent": "Peipei", "status": "pending", "title": "Prepare test cases", "id": "t3"}
-                      ]
-                  }
-              }
+        "id": "project_info",
+        "type": "text",
+        "position": {
+          "x": 0,
+          "y": 3
+        },
+        "size": {
+          "width": 120,
+          "height": 2
+        },
+        "props": {
+          "content": "当前项目: 未选择项目",
+          "align": "left"
+        }
+      },
+      {
+        "id": "agent_list",
+        "type": "list",
+        "position": {
+          "x": 0,
+          "y": 5
+        },
+        "size": {
+          "width": 20,
+          "height": 15
+        },
+        "props": {
+          "title": "Agents",
+          "items": [
+            {
+              "id": "monica",
+              "name": "Monica",
+              "role": "需求分析员/产品经理"
+            },
+            {
+              "id": "jacky",
+              "name": "Jacky",
+              "role": "架构师"
+            },
+            {
+              "id": "happen",
+              "name": "Happen",
+              "role": "全栈工程师"
+            },
+            {
+              "id": "fei",
+              "name": "Fei",
+              "role": "数据库专家"
+            },
+            {
+              "id": "peipei",
+              "name": "Peipei",
+              "role": "测试工程师"
+            }
           ]
+        }
       },
       {
-          "type": "panel",
-          "id": "input_box",
-          "component": "InputBox",
-          "height": 3,
-          "data": {
-              "prompt": "> ",
-              "placeholder": "Type your message or /command",
-              "history_limit": 200
-          },
-          "actions": {
-              "on_submit": {"type": "command", "name": "send_message", "args_from": "value"},
-              "on_command": {"type": "command", "name": "command_exec", "args_from": "value"}
-          }
+        "id": "work_area",
+        "type": "text",
+        "position": {
+          "x": 20,
+          "y": 5
+        },
+        "size": {
+          "width": 70,
+          "height": 30
+        },
+        "props": {
+          "title": "工作区",
+          "content": "[System] 欢迎使用TeamDev平台\n\n[Monica] Capturing requirements...\n\n[Jacky] Awaiting requirements...\n\n[Happen] Awaiting architecture design...\n\n[Fei] Awaiting database design...\n\n[Peipei] Awaiting test plan...",
+          "wrap": true
+        }
       },
       {
-          "type": "panel",
-          "id": "status_bar",
-          "height": 1,
-          "component": "StatusBar",
-          "data": {
-              "text": "Main Model: grok-code-fast-1 | Project: Demo"
-          }
+        "id": "task_list",
+        "type": "list",
+        "position": {
+          "x": 90,
+          "y": 5
+        },
+        "size": {
+          "width": 30,
+          "height": 30
+        },
+        "props": {
+          "title": "Tasks",
+          "items": [
+            {
+              "id": "task1",
+              "name": "Draft PRD",
+              "status": "in-progress",
+              "assignee": "monica"
+            },
+            {
+              "id": "task2",
+              "name": "System Design",
+              "status": "pending",
+              "assignee": "jacky"
+            },
+            {
+              "id": "task3",
+              "name": "Database Design",
+              "status": "pending",
+              "assignee": "fei"
+            },
+            {
+              "id": "task4",
+              "name": "API Development",
+              "status": "pending",
+              "assignee": "happen"
+            },
+            {
+              "id": "task5",
+              "name": "Frontend Development",
+              "status": "pending",
+              "assignee": "happen"
+            },
+            {
+              "id": "task6",
+              "name": "Unit Testing",
+              "status": "pending",
+              "assignee": "peipei"
+            },
+            {
+              "id": "task7",
+              "name": "Integration Testing",
+              "status": "pending",
+              "assignee": "peipei"
+            }
+          ]
+        }
+      },
+      {
+        "id": "status_bar",
+        "type": "text",
+        "position": {
+          "x": 0,
+          "y": 35
+        },
+        "size": {
+          "width": 120,
+          "height": 2
+        },
+        "props": {
+          "content": "就绪",
+          "align": "left"
+        }
+      },
+      {
+        "id": "command_input",
+        "type": "input",
+        "position": {
+          "x": 0,
+          "y": 37
+        },
+        "size": {
+          "width": 120,
+          "height": 3
+        },
+        "props": {
+          "placeholder": "输入命令或与AI对话 (输入 'help' 查看帮助)",
+          "prompt": ">"
+        }
       }
-  ]
+    ]
+  }
 }

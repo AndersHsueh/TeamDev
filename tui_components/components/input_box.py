@@ -41,7 +41,7 @@ class InputBoxComponent(BaseComponent):
 
     async def on_key(self, event: events.Key) -> None:
         """Handle key events."""
-        event.stop()
+        # Don't stop the event here to allow other components to handle it
         key = event.key
         
         if key == "backspace":
@@ -64,7 +64,9 @@ class InputBoxComponent(BaseComponent):
                     self.buffer = ""
                 else:
                     self.buffer = self.history[self.history_index]
-        elif event.is_printable:
+        elif event.is_printable and key != "ctrl+q":
+            # Handle printable characters but exclude Ctrl+Q to allow proper exit
             self.buffer += event.character
 
+        # Refresh the component after handling input
         self.refresh()
