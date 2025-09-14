@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 user-documents/*.*
 
-
 # C extensions
 *.so
 
@@ -113,7 +112,7 @@ env.bak/
 venv.bak/
 
 # Spyder project settings
-.spyderproject
+.spyerproject
 .spyproject
 
 # Rope project settings
@@ -136,8 +135,6 @@ dmypy.json
 *.swp
 *.swo
 *~
-
-# OS generated files
 .DS_Store
 .DS_Store?
 ._*
@@ -165,3 +162,25 @@ docs/_build/
 # Local configuration
 config.local.py
 settings.local.py
+
+# Virtual environments (if using venv)
+venv/
+.venv/
+
+# IDE specific files
+.vscode/settings.json
+
+# Python cache and temp directories (if not already included)
+.pytest_cache/
+pytest_cache/
+
+# Logs
+logs/*.log
+
+# Environment files (if not already included)
+.env.local
+.env.*.local*.pyc
+__pycache__/
+.env
+.DS_Store
+*.log
